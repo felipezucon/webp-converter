@@ -10,23 +10,65 @@
   const summary = document.querySelector('#summary');
   const clearButton = document.querySelector('#clear-button');
   const downloadAllButton = document.querySelector('#download-all');
+  const enableRename = document.querySelector('#enable-rename');
+  const renameInputs = document.querySelector('#rename-inputs');
+  const renamePrefix = document.querySelector('#rename-prefix');
+  const renamePreview = document.querySelector('#rename-preview');
   const conversions = [];
+  let nextCounter = 1;
 
   quality.addEventListener('input', () => { qualityValue.textContent = quality.value; });
+  enableRename.addEventListener('change', () => {
+    renameInputs.hidden = !enableRename.checked;
+    updateRenamePreview();
+    applyRenaming();
+    render();
+  });
+  renamePrefix.addEventListener('input', () => {
+    updateRenamePreview();
+    applyRenaming();
+    render();
+  });
   input.addEventListener('change', () => handleFiles(input.files));
   ['dragenter', 'dragover'].forEach(event => dropzone.addEventListener(event, e => { e.preventDefault(); dropzone.classList.add('dragging'); }));
   ['dragleave', 'drop'].forEach(event => dropzone.addEventListener(event, e => { e.preventDefault(); dropzone.classList.remove('dragging'); }));
   dropzone.addEventListener('drop', e => handleFiles(e.dataTransfer.files));
   dropzone.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') input.click(); });
-  clearButton.addEventListener('click', () => { conversions.splice(0); list.replaceChildren(); results.hidden = true; input.value = ''; });
+  clearButton.addEventListener('click', () => {
+    conversions.splice(0);
+    nextCounter = 1;
+    list.replaceChildren();
+    results.hidden = true;
+    input.value = '';
+  });
   downloadAllButton.addEventListener('click', downloadAllZip);
+
+  function updateRenamePreview() {
+    const prefix = safePrefix(renamePrefix.value);
+    renamePreview.textContent = `${prefix}_1.webp`;
+  }
+
+  function safePrefix(val) {
+    const clean = (val || '').trim().replace(/[/\\?%*:|"<>]/g, '').replace(/\s+/g, '_');
+    return clean || 'amostra';
+  }
 
   async function handleFiles(files) {
     const valid = [...files].filter(file => /image\/(png|jpeg)/.test(file.type) || /\.(png|jpe?g)$/i.test(file.name));
     if (!valid.length) return;
+
+    if (enableRename.checked && conversions.length > 0) {
+      const continueSeq = confirm(`Já existem ${conversions.length} imagem(ns) convertida(s).\nDeseja continuar a numeração a partir de ${nextCounter}?\n\n[OK] Continuar a partir de ${nextCounter}\n[Cancelar] Reiniciar numeração do 1`);
+      if (!continueSeq) {
+        nextCounter = 1;
+      }
+    }
+
     for (const file of valid) {
       try { await convert(file); } catch (error) { console.error('Falha ao converter', file.name, error); }
     }
+
+    applyRenaming();
     render();
   }
 
@@ -41,8 +83,28 @@
     bitmap.close();
     const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/webp', Number(quality.value) / 100));
     if (!blob) throw new Error('Seu navegador não conseguiu criar WebP.');
-    const name = file.name.replace(/\.(png|jpe?g)$/i, '') + '.webp';
-    conversions.push({ name, blob, originalSize: file.size, width: canvas.width, height: canvas.height, url: URL.createObjectURL(blob) });
+    const originalBaseName = file.name.replace(/\.(png|jpe?g)$/i, '') + '.webp';
+    conversions.push({
+      originalName: originalBaseName,
+      name: originalBaseName,
+      blob,
+      originalSize: file.size,
+      width: canvas.width,
+      height: canvas.height,
+      url: URL.createObjectURL(blob)
+    });
+  }
+
+  function applyRenaming() {
+    if (!enableRename.checked) {
+      conversions.forEach(item => { item.name = item.originalName; });
+      return;
+    }
+    const prefix = safePrefix(renamePrefix.value);
+    conversions.forEach((item, index) => {
+      item.name = `${prefix}_${index + 1}.webp`;
+    });
+    nextCounter = conversions.length + 1;
   }
 
   function render() {

@@ -38,6 +38,16 @@
           <option value="1200">Até 1200 px</option>
           <option value="800">Até 800 px</option>
         </select>
+        <div class="rename-section">
+          <label class="checkbox-label" for="enable-rename">
+            <input type="checkbox" id="enable-rename">
+            <span>Padronizar nome das imagens</span>
+          </label>
+          <div id="rename-inputs" class="rename-inputs" hidden>
+            <input type="text" id="rename-prefix" placeholder="Ex: amostra" autocomplete="off" spellcheck="false">
+            <span class="rename-hint">Resultado: <strong id="rename-preview">amostra_1.webp</strong>, amostra_2.webp...</span>
+          </div>
+        </div>
       </div>
     </section>
 
