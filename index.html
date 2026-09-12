@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Converta imagens para WebP diretamente no navegador.">
+  <title>Conversor WebP</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <div class="brand-mark" aria-hidden="true">W</div>
+      <div>
+        <p class="eyebrow">FERRAMENTA PRIVADA</p>
+        <h1>Conversor <span>WebP</span></h1>
+        <p class="subtitle">Imagens mais leves para sites mais rápidos.</p>
+      </div>
+    </header>
+
+    <section class="panel" aria-labelledby="upload-title">
+      <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-describedby="upload-help">
+        <div class="upload-icon" aria-hidden="true">↑</div>
+        <h2 id="upload-title">Arraste suas imagens aqui</h2>
+        <p id="upload-help">PNG, JPEG ou JPG · processamento 100% local no seu navegador</p>
+        <label class="button primary" for="file-input">Escolher imagens</label>
+        <input id="file-input" type="file" accept="image/png,image/jpeg,.png,.jpg,.jpeg" multiple hidden>
+      </div>
+
+      <div class="settings" aria-label="Configurações de conversão">
+        <label for="quality">Qualidade <strong id="quality-value">82</strong>% <span class="hint">(recomendado)</span></label>
+        <input id="quality" type="range" min="50" max="100" value="82">
+        <label for="max-width">Largura máxima <span class="hint">(opcional)</span></label>
+        <select id="max-width">
+          <option value="0">Manter tamanho original</option>
+          <option value="1920">Até 1920 px</option>
+          <option value="1600">Até 1600 px</option>
+          <option value="1200">Até 1200 px</option>
+          <option value="800">Até 800 px</option>
+        </select>
+      </div>
+    </section>
+
+    <section id="results" class="results" hidden>
+      <div class="results-heading">
+        <div><p class="eyebrow">PRONTAS PARA BAIXAR</p><h2 id="summary">0 imagens convertidas</h2></div>
+        <button id="clear-button" class="button ghost" type="button">Limpar tudo</button>
+      </div>
+      <div id="file-list" class="file-list"></div>
+      <p class="download-note">Os arquivos são processados no seu dispositivo e não são enviados para nenhum servidor.</p>
+    </section>
+
+    <footer>WebP Converter · rápido, privado e sem cadastro</footer>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
